@@ -14,12 +14,12 @@ from scipy import ndimage
 import torchvision.transforms.functional as T
 import comfy.utils
 from torch.cuda.amp import autocast
-import psutil
+# import psutil
+import json
 
 ###########################################################################
 
 # Import comfyUI modules:
-from cli_args import args
 import folder_paths
 
 ###########################################################################
@@ -27,12 +27,11 @@ import folder_paths
 class AnyType(str):
     def __ne__(self, __value: object) -> bool:
         return False
-
 any_typ = AnyType("*")
 
 def print_available_memory():
-    memory = psutil.virtual_memory()
-    print(f"Available memory: {memory.available / 1024 / 1024 / 1024:.2f} GB")
+    # memory = psutil.virtual_memory()
+    print(f"Available memory: {0 / 1024 / 1024 / 1024:.2f} GB")
 
 class Eden_RGBA_to_RGB:
     """Node that converts RGBA images to RGB by alpha blending with a background color"""
@@ -253,8 +252,8 @@ class WidthHeightPicker:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": 
-                    {"width":  ("INT", {"default": 512, "min": 0, "max": sys.maxsize}),
-                     "height":  ("INT", {"default": 512, "min": 0, "max": sys.maxsize}),
+                    {"width":  ("INT", {"default": 512, "min": 0, "max": 8192}),
+                     "height":  ("INT", {"default": 512, "min": 0, "max": 8192}),
                      "output_multiplier":  ("FLOAT", {"default": 0.5}),
                      "multiple_off":  ("INT", {"default": 64, "min": 1, "max": 264}),
                      }
@@ -306,6 +305,7 @@ class SaveImageAdvanced:
     CATEGORY = "Eden 🌱"
 
     def save_images(self, images, add_timestamp, save_metadata_json, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
+        from cli_args import args
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()
 
@@ -698,7 +698,6 @@ class MaskFromRGB_KMeans:
 
 
 
-
 class Eden_MaskCombiner:
     @classmethod
     def INPUT_TYPES(s):
@@ -909,6 +908,7 @@ def tensor2pil(image):
 def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
 
+
 class Eden_FaceToMask:
     @classmethod
     def INPUT_TYPES(s):
@@ -926,6 +926,7 @@ class Eden_FaceToMask:
         mask = detect_faces(im)
         mask = pil2tensor(mask)
         return (mask,)
+
 
 class Eden_Face_Crop:
     """Takes a hard or soft mask image, crops out the main face and returns reconstruction mask and face images."""
@@ -1219,6 +1220,8 @@ class Eden_Face_Crop:
             return (image, 0, 0, image.shape[2], image.shape[1], empty_mask, empty_mask)
 
 MAX_RESOLUTION = 8192
+
+
 class Eden_ImageMaskComposite:
     @classmethod
     def INPUT_TYPES(s):
@@ -1451,6 +1454,7 @@ def get_uniformly_sized_crops(imgs, target_n_pixels=2048**2):
     
     return resized_imgs
 
+
 class LoadRandomImage:
     def __init__(self):
         self.img_extensions = [".png", ".jpg", ".jpeg", ".bmp", ".webp", ".JPEG", ".JPG"]
@@ -1618,7 +1622,7 @@ class ImageFolderIterator:
         except Exception as e:
             raise RuntimeError(f"Error processing image {image_path}: {str(e)}")
         
-        
+
 class LoadImagesByFilename:
     def __init__(self):
         self.img_extensions = [".png", ".jpg", ".jpeg", ".bmp", ".webp"]
@@ -1628,7 +1632,7 @@ class LoadImagesByFilename:
         return {
             "required": {
                     "filename": ("COMBO", {"default": []}),
-                    "max_num_images": ("INT", {"default": None, "min": 0, "max": sys.maxsize}),
+                    "max_num_images": ("INT", {"default": None, "min": 0, "max": 8192}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 100000}),
                     "sort": ("BOOLEAN", {"default": False}),
                     "loop_sequence": ("BOOLEAN", {"default": False}),
@@ -1676,7 +1680,6 @@ class LoadImagesByFilename:
         else:
             output_image = torch.from_numpy(output_images[0])[None,]
         return (output_image,)
-
 
 
 
@@ -1730,6 +1733,7 @@ class IMG_resolution_multiple_of:
         image = image[:, :h, :w, :]
         return (image,)
 
+
 class IMG_padder:
     def __init__(self):
         self.ci = None
@@ -1780,7 +1784,7 @@ class IMG_padder:
 
 
 
-    
+
 class IMG_blender:
     @classmethod
     def INPUT_TYPES(s):
@@ -1816,7 +1820,7 @@ class IMG_blender:
         return (blended_image,)
 
 
-    
+
 class IMG_unpadder:
     @classmethod
     def INPUT_TYPES(s):
@@ -1854,7 +1858,6 @@ class IMG_unpadder:
         
         return (image,)
     
-
 class IMG_scaler:
     """
     A class to apply mathematical operations to an image.
@@ -2071,7 +2074,7 @@ class Extend_Sequence:
         return {
             "required": {
                 "images": ("IMAGE",),  # Input is a stack of images
-                "target_n_frames": ("INT", {"default": 24, "min": 1, "step": 1, "max": sys.maxsize}),  # Desired output number of frames
+                "target_n_frames": ("INT", {"default": 24, "min": 1, "step": 1, "max": 8192}),  # Desired output number of frames
                 "mode": (["wrap_around", "ping_pong"], ),  # Various modes for handling the sequence
             }
         }
