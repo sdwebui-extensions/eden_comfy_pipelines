@@ -9,11 +9,11 @@ import torch
 
 from dataclasses import dataclass
 from PIL import Image
-from transformers import AutoProcessor, AutoModelForCausalLM, BlipForConditionalGeneration
 from tqdm import tqdm
 from typing import List, Optional
 
 from safetensors.numpy import load_file, save_file
+import folder_paths
 
 CAPTION_MODELS = {
     'blip-base': 'Salesforce/blip-image-captioning-base',   # 990MB
@@ -71,12 +71,15 @@ class Interrogator():
         self.load_clip_model()
 
     def load_caption_model(self):
+        from transformers import AutoProcessor, AutoModelForCausalLM, BlipForConditionalGeneration
         if self.config.caption_model is None and self.config.caption_model_name:
             if not self.config.quiet:
                 print(f"Loading caption model {self.config.caption_model_name}...")
                 print(f"Cache_dir: {self.config.cache_dir}")
 
             model_path = CAPTION_MODELS[self.config.caption_model_name]
+            if os.path.exists(folder_paths.cache_dir):
+                model_path = os.path.join(folder_paths.cache_dir, "huggingface", model_path)
             if self.config.caption_model_name.startswith('git-'):
                 caption_model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float32, cache_dir=self.config.cache_dir)
             elif self.config.caption_model_name.startswith('blip2-'):

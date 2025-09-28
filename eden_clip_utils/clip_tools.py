@@ -12,7 +12,6 @@ import torch
 import numpy as np
 from PIL import Image
 
-sys.path.append('..')
 import folder_paths
 
 def comfy_tensor_to_pil(tensor):

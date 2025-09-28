@@ -1,19 +1,19 @@
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from clip_utils.clip_tools import CLIP_Interrogator  
-from img_utils.img_nodes import *
-from img_utils.depth_nodes import *
-from img_utils.gpt_nodes import *
-from img_utils.hist_matcher import HistogramMatching
-from logic.logic_nodes import *
-from img_utils.animation import Animation_RGB_Mask, AnimatedShapeMaskNode
-from video_utils.gradient_mask_video import KeyframeBlender, MaskedRegionVideoExport
-from ip_adapter_utils.moodmix_utils import *
-from video_utils.video_interpolation import VideoFrameSelector
-from video_utils.fill_image_mask import OrganicFillNode
-from general_utils import *
+from eden_clip_utils.clip_tools import CLIP_Interrogator  
+from eden_img_utils.img_nodes import *
+from eden_img_utils.depth_nodes import *
+from eden_img_utils.gpt_nodes import *
+from eden_img_utils.hist_matcher import HistogramMatching
+from eden_logic.logic_nodes import *
+from eden_img_utils.animation import Animation_RGB_Mask, AnimatedShapeMaskNode
+from eden_video_utils.gradient_mask_video import KeyframeBlender, MaskedRegionVideoExport
+from eden_ip_adapter_utils.moodmix_utils import *
+from eden_video_utils.video_interpolation import VideoFrameSelector
+from eden_video_utils.fill_image_mask import OrganicFillNode
+from eden_general_utils import *
 
 WEB_DIRECTORY = "./js"
 
